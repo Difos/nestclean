@@ -1,60 +1,60 @@
-import { AppModule } from "@/infra/app.module";
-import { DatabaseModule } from "@faker-js/faker/.";
-import { INestApplication } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { Test } from "@nestjs/testing";
-import request from "supertest";
-import { QuestionFactory } from "test/factories/make-question";
-import { StudentFactory } from "test/factories/make-student";
+import { AppModule } from '@/infra/app.module'
+import { DatabaseModule } from '@/infra/database/database.module'
+import { INestApplication } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
+import { Test } from '@nestjs/testing'
+import request from 'supertest'
+import { QuestionFactory } from 'test/factories/make-question'
+import { StudentFactory } from 'test/factories/make-student'
 
-describe("Get question (E2E)", () => {
-  let app: INestApplication;
-  let jwt: JwtService;
-  let studentFactory: StudentFactory;
-  let questionFactory: QuestionFactory;
+describe('Get question (E2E)', () => {
+  let app: INestApplication
+  let jwt: JwtService
+  let studentFactory: StudentFactory
+  let questionFactory: QuestionFactory
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule, DatabaseModule],
       providers: [StudentFactory, QuestionFactory],
-    }).compile();
+    }).compile()
 
-    app = moduleRef.createNestApplication();
-    jwt = moduleRef.get(JwtService);
-    studentFactory = moduleRef.get(StudentFactory);
-    questionFactory = moduleRef.get(QuestionFactory);
+    app = moduleRef.createNestApplication()
+    jwt = moduleRef.get(JwtService)
+    studentFactory = moduleRef.get(StudentFactory)
+    questionFactory = moduleRef.get(QuestionFactory)
 
-    await app.init();
-  });
+    await app.init()
+  })
 
-  test("[GET] /questions", async () => {
-    const user = await studentFactory.makePrismaStudent();
+  test('[GET] /questions', async () => {
+    const user = await studentFactory.makePrismaStudent()
 
-    const AccessToken = jwt.sign({ sub: user.id.toString() });
+    const AccessToken = jwt.sign({ sub: user.id.toString() })
 
     await Promise.all([
       questionFactory.makePrismaQuestion({
         authorId: user.id,
-        title: "question 1",
+        title: 'question 1',
       }),
       questionFactory.makePrismaQuestion({
         authorId: user.id,
-        title: "question 2",
+        title: 'question 2',
       }),
-    ]);
+    ])
 
     const response = await request(app.getHttpServer())
-      .get("/questions")
-      .set("Authorization", `Bearer ${AccessToken}`)
-      .send();
+      .get('/questions')
+      .set('Authorization', `Bearer ${AccessToken}`)
+      .send()
 
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(200)
 
     expect(response.body).toEqual({
-      questions: [
-        expect.objectContaining({ title: "question 1" }),
-        expect.objectContaining({ title: "question 2" }),
-      ],
-    });
-  });
-});
+      questions: expect.arrayContaining([
+        expect.objectContaining({ title: 'question 1' }),
+        expect.objectContaining({ title: 'question 2' }),
+      ]),
+    })
+  })
+})

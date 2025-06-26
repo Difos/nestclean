@@ -1,7 +1,12 @@
 import { CreateQuestionUseCase } from '@/domain/forum/application/use-cases/create-question'
-import { BadRequestException, Body, Controller, Post, UseGuards } from '@nestjs/common'
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+} from '@nestjs/common'
 import { CurrentUser } from 'src/infra/auth/current-user-decorator'
-import { JwtAuthGuard } from 'src/infra/auth/jwt-auth.guard'
 import { TokenPayload } from 'src/infra/auth/jwt.strategy'
 import { ZodValidationPipe } from 'src/infra/http/pipes/zod-validation-pipe'
 import { z } from 'zod'
@@ -18,6 +23,7 @@ type CreateQuestionBodySchema = z.infer<typeof createQuestionBodySchema>
 export class CreateQuestionController {
   constructor(private createQuestion: CreateQuestionUseCase) {}
   @Post()
+  @HttpCode(201)
   async handle(
     @CurrentUser() user: TokenPayload,
     @Body(bodyValidationPipe) body: CreateQuestionBodySchema,
@@ -29,12 +35,11 @@ export class CreateQuestionController {
       title,
       content,
       authorId: userId,
-      attachmentsIds: []
+      attachmentsIds: [],
     })
 
-     if (result.isLeft()) {
-          throw new BadRequestException();
-        }
-    
+    if (result.isLeft()) {
+      throw new BadRequestException()
+    }
   }
 }

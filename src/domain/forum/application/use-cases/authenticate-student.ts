@@ -19,26 +19,34 @@ type AuthenticateStudentUseCaseResponse = Either<
 
 @Injectable()
 export class AuthenticateStudentUseCase {
-  constructor(private studentRepository: StudentRepository, private hashComparer: HashComparer, private encrypter: Encrypter) {}
+  constructor(
+    private studentRepository: StudentRepository,
+    private hashComparer: HashComparer,
+    private encrypter: Encrypter,
+  ) {}
 
   async execute({
     email,
-    password
+    password,
   }: AuthenticateStudentUseCaseRequest): Promise<AuthenticateStudentUseCaseResponse> {
-    
-    const student = await this.studentRepository.findByEmail (email)
+    const student = await this.studentRepository.findByEmail(email)
 
-    if(!student){
-        return left(new WrongCredentialsError)
+    if (!student) {
+      return left(new WrongCredentialsError())
     }
 
-    const isPasswordValid = await this.hashComparer.compare(password, student.password)
+    const isPasswordValid = await this.hashComparer.compare(
+      password,
+      student.password,
+    )
 
-    if(!isPasswordValid) {
-        return left(new WrongCredentialsError)
+    if (!isPasswordValid) {
+      return left(new WrongCredentialsError())
     }
 
-    const accessToken = await this.encrypter.encrypt({ sub: student.id.toString() })
+    const accessToken = await this.encrypter.encrypt({
+      sub: student.id.toString(),
+    })
     return right({
       accessToken,
     })

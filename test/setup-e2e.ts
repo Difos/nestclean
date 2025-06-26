@@ -1,10 +1,13 @@
+import { PrismaClient } from '@prisma/client'
 import { execSync } from 'child_process'
-import 'dotenv/config'
+import { randomUUID } from 'crypto'
+import { config } from 'dotenv'
 
-import { PrismaClient } from '../generated/prisma'
+config({path: '.env', override: true})
+config({path: '.env.test', override: true})
 
 const prisma = new PrismaClient()
-const schemaName = 'db_nestcleantest'
+const schemaName = `db_nestcleantest_${randomUUID().replace(/-/g, '')}`
 
 if (!process.env.DATABASE_URL) {
   throw new Error('Please provider a DATABASE_URL envirioment variable')

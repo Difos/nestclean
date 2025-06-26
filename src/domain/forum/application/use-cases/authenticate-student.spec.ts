@@ -13,30 +13,33 @@ let sut: AuthenticateStudentUseCase
 describe('Authenticate Student', () => {
   beforeEach(() => {
     inMemoryStudentsRepository = new InMemoryStudentsRepository()
-    fakeHasher  = new FakeHasher()
-    fakeEncrypter = new FakeEncrypter
+    fakeHasher = new FakeHasher()
+    fakeEncrypter = new FakeEncrypter()
 
-    sut = new AuthenticateStudentUseCase(inMemoryStudentsRepository, fakeHasher, fakeEncrypter)
+    sut = new AuthenticateStudentUseCase(
+      inMemoryStudentsRepository,
+      fakeHasher,
+      fakeEncrypter,
+    )
   })
 
   it('should be able to authenticate a student', async () => {
-
     const student = makeStudent({
-        email: 'wesleyepeneto@example.com',
-        password: await fakeHasher.hash('123456')
+      email: 'wesleyepeneto@example.com',
+      password: await fakeHasher.hash('123456'),
     })
 
     inMemoryStudentsRepository.items.push(student)
 
     const result = await sut.execute({
-      email: 'wesleyestudos@example.com',
-      password : '123456'
+      email: 'wesleyepeneto@example.com',
+      password: '123456',
     })
 
     expect(result.isRight()).toBe(true)
 
     expect(result.value).toEqual({
-        accessToken : expect.any(String)
+      accessToken: expect.any(String),
     })
   })
 })

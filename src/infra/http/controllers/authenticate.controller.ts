@@ -22,8 +22,7 @@ type AuthenticateBodySchema = z.infer<typeof authenticateBodySchema>
 @Controller('/sessions')
 @Public()
 export class AuthenticationController {
-  constructor(private authenticateStudent : AuthenticateStudentUseCase
-  ) {}
+  constructor(private authenticateStudent: AuthenticateStudentUseCase) {}
 
   @Post()
   @HttpCode(201)
@@ -33,12 +32,12 @@ export class AuthenticationController {
 
     const result = await this.authenticateStudent.execute({
       email,
-      password
+      password,
     })
-    if(result.isLeft()){
+    if (result.isLeft()) {
       const error = result.value
 
-      switch(error.constructor){
+      switch (error.constructor) {
         case WrongCredentialsError:
           throw new UnauthorizedException(error.message)
         default:

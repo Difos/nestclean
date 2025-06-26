@@ -20,26 +20,28 @@ type RegisterStudentUseCaseResponse = Either<
 
 @Injectable()
 export class RegisterStudentUseCase {
-  constructor(private studentRepository: StudentRepository, private hashGenerator: HashGenerator) {}
+  constructor(
+    private studentRepository: StudentRepository,
+    private hashGenerator: HashGenerator,
+  ) {}
 
   async execute({
     name,
     email,
-    password
+    password,
   }: RegisterStudentUseCaseRequest): Promise<RegisterStudentUseCaseResponse> {
-    
-    const studentWithSameEmail = await this.studentRepository.findByEmail (email)
+    const studentWithSameEmail = await this.studentRepository.findByEmail(email)
 
-    if(studentWithSameEmail){
-        return left(new StudentAlreadyExistsError(email))
+    if (studentWithSameEmail) {
+      return left(new StudentAlreadyExistsError(email))
     }
 
     const hashedPassword = await this.hashGenerator.hash(password)
 
     const student = Student.create({
-        name,
-        email,
-        password
+      name,
+      email,
+      password,
     })
 
     await this.studentRepository.create(student)

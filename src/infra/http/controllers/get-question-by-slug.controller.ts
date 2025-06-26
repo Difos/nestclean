@@ -1,21 +1,21 @@
-import { BadRequestException, Controller, Get, Param } from "@nestjs/common";
-import { GetQuestionBySlugUseCase } from "../../../domain/forum/application/use-cases/get-question-by-slug";
-import { QuestionPresenter } from "../presenters/question-presenter";
+import { BadRequestException, Controller, Get, Param } from '@nestjs/common'
+import { GetQuestionBySlugUseCase } from '../../../domain/forum/application/use-cases/get-question-by-slug'
+import { QuestionPresenter } from '../presenters/question-presenter'
 
-@Controller("/question/:slug")
+@Controller('/question/:slug')
 export class GetQuestionBySlugController {
   constructor(private getQuestionBySlug: GetQuestionBySlugUseCase) {}
   @Get()
-  async handle(@Param("slug") slug: string) {
+  async handle(@Param('slug') slug: string) {
     const result = await this.getQuestionBySlug.execute({
       slug,
-    });
+    })
     if (result.isLeft()) {
-      throw new BadRequestException();
+      throw new BadRequestException()
     }
 
-    const question = result.value.question;
+    const question = result.value.question
 
-    return { question: QuestionPresenter.toHTTP(result.value.question) };
+    return { question: QuestionPresenter.toHTTP(result.value.question) }
   }
 }
